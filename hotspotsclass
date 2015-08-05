@@ -1,7 +1,4 @@
-###this script works in conjunction with a plotBlobs script here ( https://github.com/ibok/DECOEventType_beta ). 
-###It analyzes the x and y coordinates of event candidates and then determines if the blob ("event") is a hotspot or an event. 
-###If the coordinates are repeated several times, then the blob is a hotspot. 
-###It prints any images with hotspots to another file (in whatever folder you're in) called "hotspotsclass.out"
+###this script works in conjunction with a plotBlobs script here ( https://github.com/ibok/DECOEventType_beta ). It analyzes the x and y coordinates of event candidates and then determines if the blob ("event") is a hotspot or an event. If the coordinates are repeated several times, then the blob is a hotspot. It prints any images with hotspots to another file (in whatever folder you're in) called "hotspotsclass.out"
 
 infile = open('xandyCent.out', 'r')
 f = open('hotspotsclass.out', 'w')
@@ -16,13 +13,14 @@ hotspot_yCent = []
 yhotspot_img_index = []
 hotspots = []
 
+
 #appending values into arrays
 for line in infile:
     data = line.split(' ')
     event_ID.append(str(data[0]))
     xCent.append(float(data[1]))
     yCent.append(float(data[2]))
-    
+
 #gathering packages
 import numpy as np
 from collections import Counter
@@ -50,6 +48,7 @@ for k,v in hotspot_yCent.items():
         yhotspot_img_index.extend(v)
 hotspot_yCent = sorted(yhotspot_img_index)
 
+
 #put them together: find intersections of repeated values. There will be a lot of blob centers at the same point if there is a hotspot.
 hotspot_xyCent = hotspot_xCent + hotspot_yCent
 
@@ -61,6 +60,7 @@ hotspots = [i for i in h if h[i] >= 2]
 nonhotspots = [i for i in h if h[i] <= 1]
 
 #classification with event_ID
+
 for i in range(0, len(hotspots)):
     print >>f, event_ID[hotspots[i]], "hotspot", (xCent[i], yCent[i])
 
@@ -68,4 +68,10 @@ hotspot_amount = len(hotspots)
 nonhotspot_amount = len(nonhotspots)
 print 'number of hotspots:', hotspot_amount
 print 'number of nonhotspots:', nonhotspot_amount
+
+total_amount = hotspot_amount + nonhotspot_amount
+total_images = len(event_Id)
+
+if total_amount != total_images:
+    print 'error: something went wrong?'
 
