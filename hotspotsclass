@@ -1,0 +1,71 @@
+#this script will use a version of plotBlobsH to find hotspots in classified images. 
+#PlotBlobsH spits the x and y centers for all of the classified events (blobs) into an output file
+#that is called 'xandyCent.out'. This script goes through this output file and finds duplicate values. 
+#duplicate values = hotspot. Now, we know which events are actually not events but hotspots. 
+
+#read output file from plotBlobsH and print to a different file 
+infile = open('xandyCent.out', 'r')
+outfile = open('hotspotsclass.out', 'w')
+
+#these are emtpy arrays for x and y centers
+event_ID, xCent, yCent = [], [], []
+
+#these are empty arrays that the script will add values into 
+hotspot_xCent = []
+xhotspot_img_index = []
+hotspot_yCent = []
+yhotspot_img_index = []
+hotspots = []
+
+
+#appending values into arrays
+for line in infile:
+    data = line.split(' ')
+    event_ID.append(str(data[0]))
+    xCent.append(float(data[1]))
+    yCent.append(float(data[2]))
+
+#gathering packages
+import numpy as np
+import matplotlib.pyplot as plt
+from collections import Counter
+from collections import defaultdict
+
+##########################
+# analyzing for hotspots #
+##########################
+
+#find duplicated xCent values w/ indexes
+hotspot_xCent = defaultdict(list)
+for i, item in enumerate(xCent):
+	hotspot_xCent[item].append(i)
+for k,v in hotspot_xCent.items():
+	if len(v)>occurance:
+		xhotspot_img_index.extend(v)
+hotspot_xCent = sorted(xhotspot_img_index)
+
+#find duplicated yCent values w/ indexes
+hotspot_yCent = defaultdict(list)
+for i, item in enumerate(yCent):
+    hotspot_yCent[item].append(i)
+for k,v in hotspot_yCent.items():
+    if len(v)>occurance:
+        yhotspot_img_index.extend(v)
+hotspot_yCent = sorted(yhotspot_img_index)
+
+#put the arrays together
+hotspot_xyCent = hotspot_xCent + hotspot_yCent
+
+#find duplicated coordinate values and their indexes.
+h = Counter(hotspot_xyCent)
+
+hotspots = [i for i in h if h[i]>occurance]
+
+nonhotspots = [i for i in h if h[i]==1]
+
+#classification with event_ID, printed to 'hotspotsclass.out'
+for i in range(0, len(hotspots)):
+    print >>outfile, event_ID[hotspots[i]], "hotspot"
+
+for i in range(0, len(nonhotspots)):
+    print >>outfile, event_ID[nonhotspots[i]], "nonhotspot"
